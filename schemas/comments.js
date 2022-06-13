@@ -18,7 +18,6 @@ const commentsSchema = new mongoose.Schema({
   userNickname: {
     type: String,
     required: true,
-    unique: true,
   },
   userProfileImage: {
     type: String,
@@ -27,12 +26,10 @@ const commentsSchema = new mongoose.Schema({
   authorId: {
     type: Schema.Types.ObjectId,
     required: true,
-    unique: true,
   },
   postId: {
     type: Number,
     required: true,
-    unique: true,
   },
 });
 module.exports = mongoose.model('Comments', commentsSchema);

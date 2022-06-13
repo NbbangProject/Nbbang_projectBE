@@ -38,12 +38,10 @@ const postsSchema = new mongoose.Schema({
   userNickname: {
     type: String,
     required: true,
-    unique: true,
   },
   authorId: {
     type: Schema.Types.ObjectId,
     required: true,
-    unique: true,
   },
   commentAll: {
     type: Number,

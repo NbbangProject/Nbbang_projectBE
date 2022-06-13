@@ -10,14 +10,16 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
   let counter = await CommentCounter.findOne({ name: 'totalComment' }).exec();
   counter.totalComment++;
   counter.save();
-  const existingUser = await User.findOne({ _id: res.locals.userId });
+  const { userId } = res.locals.user;
+  const existingUser = await User.findOne({ _id: userId });
+  const commentAll = await Post.findOne({ postId: parseInt(postId) });
 
   const commentId = counter.totalComment;
   const { comment } = req.body;
   const commentDate = new Date().toLocaleDateString();
   const userNickname = existingUser.userNickname;
   const userProfileImage = existingUser.userProfileImage;
-  const authorId = res.locals.userId;
+  const authorId = existingUser._id;
   const postId = parseInt(req.params);
 
   if (!comment) {
@@ -32,6 +34,11 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
     authorId,
     postId,
   });
+
+  await Post.updateOne(
+    { postId: parseInt(postId) },
+    { $set: { commentAll: commentAll.length } }
+  );
   res.status(200).json({
     success: true,
     message: '댓글 저장 성공',
@@ -42,14 +49,24 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
 // 코멘트 삭제: 유저확인
 router.delete('/comment/:commentId', authMiddlewares, async (req, res) => {
   const { commentId } = req.params;
+  const { userId } = res.locals.user;
   const existingComment = await Comment.find({
     commentId: parseInt(commentId),
   });
-  if (existingComment.length) {
-    await Comment.deleteOne({ commentId: parseInt(commentId) });
-    res.status(200).json({ success: true, message: '댓글 삭제 성공' });
+  const commentAll = await Post.findOne({
+    postId: parseInt(existingComment.postId),
+  });
+  if (userId !== existingComment.authorId) {
+    res
+      .status(400)
+      .json({ success: false, message: '내가 쓴 댓글이 아닙니다' });
   } else {
-    res.status(400).json({ success: false, message: '댓글 삭제 실패' });
+    await Comment.deleteOne({ commentId: parseInt(commentId) });
+    await Post.updateOne(
+      { postId: parseInt(existingComment.postId) },
+      { $set: { commentAll: commentAll.length } }
+    );
+    res.status(200).json({ success: true, message: '댓글 삭제 성공' });
   }
 });
 

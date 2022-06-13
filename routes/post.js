@@ -7,6 +7,7 @@ const authMiddlewares = require('../middlewares/authconfirm');
 
 router.put('/edit/:postId', authMiddlewares, async (req, res) => {
   const { postId } = req.params;
+  const { userId } = res.locals.user;
   const {
     postCategory,
     postTitle,
@@ -15,9 +16,9 @@ router.put('/edit/:postId', authMiddlewares, async (req, res) => {
     postOrderTime,
     postContent,
   } = req.body;
-  const existingPost = await Post.find({ authorId: res.locals.userId });
+  const existingPost = await Post.find({ authorId: userId });
 
-  if (res.locals.userId !== existingPost.authorId) {
+  if (userId !== existingPost.authorId) {
     res.status(400).json({ sucess: false, message: '내 게시물이 아닙니다' });
   } else {
     await Post.updateOne(
@@ -40,13 +41,14 @@ router.put('/edit/:postId', authMiddlewares, async (req, res) => {
 // 포스트 삭제 : 유저확인,삭제되는 포스트와 같은 postId값 가진 댓글들도 삭제
 router.delete('/post/:postId', authMiddlewares, async (req, res) => {
   const { postId } = req.params;
+  const { userId } = res.locals.user;
   const existingPost = await Post.find({ postId: parseInt(postId) });
-  if (existingPost.length) {
+  if (userId !== existingPost.authorId) {
+    res.status(400).json({ success: false, message: '내 게시물이 아닙니다' });
+  } else {
     await Post.deleteOne({ postId: parseInt(postId) });
     await Comment.deleteMany({ postId: parseInt(postId) });
     res.status(200).json({ success: true, message: '게시물 삭제 성공' });
-  } else {
-    res.status(400).json({ success: false, message: '게시물 삭제 실패' });
   }
 });
 
