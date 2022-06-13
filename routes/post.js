@@ -3,6 +3,65 @@ const Comment = require('../schemas/comments');
 const Post = require('../schemas/posts');
 const authMiddlewares = require('../middlewares/authconfirm');
 
+// Post 전체 정보 불러오기
+router.get("/", async (req, res) => {
+  try {
+  const posts = await posts.find().sort({ date: -1 }); //오름차순 정렬
+  res.json({
+    posts,
+  });
+}catch (error) {
+  res.status(400).json({ error: error.message });
+}
+});
+
+
+// Post 상세 보기 
+router.get("/detail/:postId",  async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const detail = await detail.find({ postId: postId });
+    
+    res.status(200).json({
+      ok: true,
+      detail,
+      message: "Post 상세페이지 보기 성공"
+  });
+} catch (err) {
+  res.status(400).json({
+    ok: false,
+    errorMessage: "Post 상세페이지 보기 실패",
+  });
+  console.log("Post 상세페이지 보기 실패: " + err);
+}
+});
+
+//게시글 작성
+router.post("/write", authMiddleware, async (req, res) => {
+  const userImage  = res.locals.users.postImage
+  const postNickname  = res.locals.users.postNickname
+  const userId = res.locals.users.userId 
+  // const comment_cnt = 0;
+
+  try {
+    // const result = await Post.create({ userId, nickname, userIcon, content, imgUrl, date, comment_cnt });
+    // const postId = result.postId;
+
+    res.status(200).json({
+      postId,
+      ok: true,
+      message: "생성 성공"
+    });
+  } catch (err) {
+    res.status(400).json({
+      ok: false,
+      errorMessage: "생성 실패"
+    });
+  }
+});
+
+module.exports = router;
+
 // 포스트 수정 :
 
 router.put('/edit/:postId', authMiddlewares, async (req, res) => {
