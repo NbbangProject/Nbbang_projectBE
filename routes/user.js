@@ -1,19 +1,19 @@
-const express = require('express');
-const Joi = require('joi');
-const jwt = require('jsonwebtoken');
-const { JsonWebTokenError } = require('jsonwebtoken');
-const multer = require('multer');
+const express = require("express");
+const Joi = require("joi");
+const jwt = require("jsonwebtoken");
+const { hash, compare } = require("bcryptjs");
+const multer = require("multer");
 const router = express.Router();
-const path = require('path');
-const authMiddlewares = require('../middlewares/authconfirm');
+const path = require("path");
+const authMiddlewares = require("../middlewares/authconfirm");
 // const LocalStrategy = require('passport-local').Strategy;
-const connect = require('../schemas');
-const User = require('../schemas/users');
+const connect = require("../schemas");
+const User = require("../schemas/users");
 connect();
 
 // 이미지 업로드 Multer
 const upload = multer({
-  dest: 'upload/',
+  dest: "upload/",
   // storage: multer.diskStorage({
   //     destination(req, file, cb) {
   //         cb(null, 'uploads/');
@@ -38,161 +38,137 @@ const upload = multer({
 // 검증 Joi 라이브러리
 const userSchema = Joi.object({
   userNickname: Joi.string().required(),
-  userPassword: Joi.string().required(),
-  confirmPassword: Joi.string(),
   userEmail: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .required(),
+  userPassword: Joi.string().required(),
+  confirmPassword: Joi.string().required(),
   regionSi: Joi.string().required(),
   regionGu: Joi.string().required(),
   regionDetail: Joi.string().required(),
+  userProfileImage: Joi.string(),
 });
 
 // 회원가입시 프로필 사진이 들어갈 폴더
 // app.use(express.static('../public/image'))
 
 //회원가입
-router.post('/signup', upload.single('userProfileImage'), async (req, res) => {
+router.post("/signup", upload.single("userProfileImage"), async (req, res) => {
   try {
-    const {
-      userNickname,
-      userEmail,
-      userPassword,
-      confirmPassword,
-      regionSi,
-      regionGu,
-      regionDetail,
-    } = await userSchema.validateAsync(req.body);
+    const { userNickname, userEmail, userPassword, confirmPassword, regionSi, regionGu, regionDetail } = await userSchema.validateAsync(req.body);
     const userProfileImage = req.file.path;
 
-    const re_email =
-      /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+    const re_email = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
     const re_nickname = /^[a-zA-Z0-9]{3,10}$/;
     const re_password = /^[a-zA-Z0-9]{4,30}$/;
 
     if (userPassword !== confirmPassword) {
       res.status(400).send({
-        errormessage: '패스워드가 일치 하지 않습니다',
+        errormessage: "패스워드가 일치 하지 않습니다",
       });
       return;
     }
 
     if (userNickname.search(re_nickname) == -1) {
       res.status(400).send({
-        errormessage: '닉네임 형식이 일치하지 않습니다',
+        errormessage: "닉네임 형식이 일치하지 않습니다",
       });
       return;
     }
 
     if (userEmail.search(re_email) == -1) {
       res.status(400).send({
-        errormessage: '이메일 형식이 일치하지 않습니다',
+        errormessage: "이메일 형식이 일치하지 않습니다",
       });
       return;
     }
 
     if (userPassword.search(re_password) == -1) {
-      res.status(412).send({
-        errormessage: '패스워드 형식이 일치하지 않습니다',
+      res.status(400).send({
+        errormessage: "패스워드 형식이 일치하지 않습니다",
       });
       return;
     }
 
     if (userNickname === userPassword) {
       res.status(400).send({
-        errormessage: '닉네임과 비밀번호가 동일합니다',
+        errormessage: "닉네임과 비밀번호가 동일합니다",
       });
       return;
     }
-    const existuser = await User.find({
-      $or: [{ userNickname }, { userEmail }],
-    });
+    const existuser = await User.find({ $or: [{ userNickname }, { userEmail }] });
     // const existuserEmail = await User.find({ userEmail });
     if (existuser.length) {
       res.status(400).send({
-        errormessage: '이미 가입된 이메일 또는 닉네임이 있습니다.',
+        errormessage: "이미 가입된 이메일 또는 닉네임이 있습니다.",
       });
       return;
     }
+    const hashedPassword = await hash(userPassword, 10);
+    console.log(hashedPassword);
     // userProfileImage
-    const user = await User.create({
-      userNickname,
-      userEmail,
-      userPassword,
-      confirmPassword,
-      regionSi,
-      regionGu,
-      regionDetail,
-      userProfileImage,
-    });
-    await user.save();
-
+    const user = await User.create({ userNickname, userEmail, hashedPassword, regionSi, regionGu, regionDetail, userProfileImage });
     res.status(201).send({ user });
   } catch (error) {
     console.log(error);
-    res
-      .status(400)
-      .send({ errormessage: '요청한 데이터 형식이 올바르지 않습니다' });
+    res.status(400).send({ errormessage: "요청한 데이터 형식이 올바르지 않습니다" });
   }
 });
 
 const loginAuthSchema = Joi.object({
   userEmail: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .required(),
   userPassword: Joi.string().required(),
 });
 
 // 로그인 기능
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
-    const { userEmail, userPassword } = await loginAuthSchema.validateAsync(
-      req.body
-    );
-    const re_email =
-      /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
-    const re_password = /^[a-zA-Z0-9]{4,30}$/;
-    const isEmail = await User.findOne({ userEmail, userPassword });
+    const { userEmail, userPassword } = await loginAuthSchema.validateAsync(req.body);
+    const user = await User.findOne({ userEmail });
+    await compare(userPassword, user.hashedPassword);
+
+    const re_email = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+    // const re_password = /^[a-zA-Z0-9]{4,30}$/;
 
     if (userEmail.search(re_email) == -1) {
       res.status(400).send({
-        errormessage: '이메일 형식이 일치 하지 않습니다.',
+        errormessage: "이메일 형식이 일치 하지 않습니다.",
       });
       return;
     }
-    if (userPassword.search(re_password) == -1) {
-      res.status(400).send({
-        errormessage: '비밀번호 형식이 일치 하지 않습니다.',
-      });
-      return;
-    }
+    // if (userPassword.search(re_password) == -1) {
+    //   res.status(400).send({
+    //     errormessage: "비밀번호 형식이 일치 하지 않습니다.",
+    //   });
+    //   return;
+    // }
 
-    if (!isEmail || userPassword !== isEmail.userPassword) {
+    if (!user || userPassword !== user.hashedPassword) {
       res.status(400).send({
-        errormessage: '닉네임 또는 패스워드를 확인해주세요',
+        errormessage: "아이디 또는 패스워드를 확인해주세요",
       });
       return;
     }
-    const token = jwt.sign({ userId: isEmail.userId }, 'nbbang-sercet-key', {
-      expiresIn: '1h',
-    });
+    const token = jwt.sign({ userId: user.userId }, "nbbang-sercet-key", { expiresIn: "1h" });
     res.send({ token });
   } catch (error) {
     console.error(error);
-    res.status(400).send({});
+    res.status(400).send({
+      errormessage: "아이디나 비밀번호를 확인해주세요",
+    });
   }
 });
 
 // 로그인 상태 확인
-router.get('/auth', authMiddlewares, async (req, res) => {
+router.get("/auth", authMiddlewares, async (req, res) => {
   try {
     const { user } = res.locals;
-    console.log(res.locals);
-    console.log(user);
     res.status(200).send({ user });
   } catch (error) {
     res.status(401).send({
-      errormessage: '사용자 정보를 가져오지 못하였습니다.',
+      errormessage: "사용자 정보를 가져오지 못하였습니다.",
     });
   }
 });
