@@ -12,8 +12,6 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
   counter.save();
   const { userId } = res.locals.user;
   const existingUser = await User.findOne({ _id: userId });
-  const commentAll = await Post.findOne({ postId: parseInt(postId) });
-
   const commentId = counter.totalComment;
   const { comment } = req.body;
   const commentDate = new Date().toLocaleDateString();
@@ -34,7 +32,7 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
     authorId,
     postId,
   });
-
+  const commentAll = await Comment.find({ postId: parseInt(postId) });
   await Post.updateOne(
     { postId: parseInt(postId) },
     { $set: { commentAll: commentAll.length } }
@@ -53,15 +51,16 @@ router.delete('/comment/:commentId', authMiddlewares, async (req, res) => {
   const existingComment = await Comment.find({
     commentId: parseInt(commentId),
   });
-  const commentAll = await Post.findOne({
-    postId: parseInt(existingComment.postId),
-  });
+
   if (userId !== existingComment.authorId) {
     res
       .status(400)
       .json({ success: false, message: '내가 쓴 댓글이 아닙니다' });
   } else {
     await Comment.deleteOne({ commentId: parseInt(commentId) });
+    const commentAll = await Comment.find({
+      postId: parseInt(existingComment.postId),
+    });
     await Post.updateOne(
       { postId: parseInt(existingComment.postId) },
       { $set: { commentAll: commentAll.length } }
