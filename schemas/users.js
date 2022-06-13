@@ -1,43 +1,43 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const usersSchema = new mongoose.Schema({
   userNickname: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
   },
   userEmail: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
   },
-  userPassword: {
+  hashedPassword: {
     type: String,
-    required: true,
+    // required: true,
   },
   regionSi: {
     type: String,
-    required: true,
+    // required: true,
   },
   regionGu: {
     type: String,
-    required: true,
+    // required: true,
   },
   regionDetail: {
     type: String,
-    required: true,
+    // required: true,
   },
   userProfileImage: {
     type: String,
-    required: true,
+    // required: true,
   },
 });
 
-usersSchema.virtual('userId').get(function () {
+usersSchema.virtual("userId").get(function () {
   return this._id.toHexString();
 });
-usersSchema.set('toJSON', {
+usersSchema.set("toJSON", {
   virtuals: true,
 });
 
-module.exports = mongoose.model('Users', usersSchema);
+module.exports = mongoose.model("Users", usersSchema);
