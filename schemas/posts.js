@@ -35,6 +35,10 @@ const postsSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  postTime: {
+    type: Date,
+    required: true,
+  },
   userNickname: {
     type: String,
     required: true,
