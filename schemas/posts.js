@@ -28,6 +28,9 @@ const postsSchema = new mongoose.Schema({
     type: String,
     // required: true,
   },
+  postOrderDate: {
+    type: String,
+  },
   postContent: {
     type: String,
     // required: true,
