@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const AutoIncrement = require("mongoose-sequence")(mongoose);
 
 const postsSchema = new mongoose.Schema({
   postId: {
@@ -35,6 +36,10 @@ const postsSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  postTime: {
+    type: Date,
+    required: true,
+  },
   userNickname: {
     type: String,
     required: true,
@@ -51,5 +56,5 @@ const postsSchema = new mongoose.Schema({
     default: 0,
   },
 });
-
+postsSchema.plugin(AutoIncrement, {inc_field: 'postId'});
 module.exports = mongoose.model('Posts', postsSchema);
