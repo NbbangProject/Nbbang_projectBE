@@ -53,13 +53,16 @@ router.post("/write", authMiddlewares, async (req, res) => {
   const { userId } = res.locals.user;
   const existingUser = await User.findOne({ _id: userId });
   const { postCategory, postTitle, postImage, postAddress, postOrderTime, postContent} = req.body;
-  const postDate = new Date(+new Date() + 3240 * 10000).toISOString().replace("T", " ").replace(/\..*/, "");
-  const postTime = new Date(+new Date() + 3240 * 10000).toISOString().replace("T", " ").replace(/\..*/, "");
+  const now = new Date();
+  const date = now.toLocaleDateString('ko-KR');
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const postDate = date + ' ' + hours + ':' + minutes; 
   const userNickname = existingUser.userNickname;
   const authorId = existingUser._id;
   const commentAll = 0;
   // const userProfileImage = users.userProfileImage;
-  try {
+  try {s
     const createPost = await Post.create({ 
     postId, 
     postCategory, 
@@ -69,7 +72,6 @@ router.post("/write", authMiddlewares, async (req, res) => {
     postOrderTime,
     postContent,
     postDate,
-    postTime,
     userNickname,
     authorId,
     commentAll,
