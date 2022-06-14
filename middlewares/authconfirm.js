@@ -4,9 +4,8 @@ const User = require('../schemas/users');
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
   const [tokenType, tokenValue] = (authorization || '').split(' ');
-  console.log('인증됨');
   console.log(authorization);
-  if (!tokenType !== 'Bearer') {
+  if (!tokenValue || tokenType !== 'Bearer') {
     res.status(401).send({
       errorMessage: '로그인 후 이용 가능합니다.',
     });
