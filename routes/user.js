@@ -1,4 +1,5 @@
 const express = require("express");
+const app = express();
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const { hash, compare } = require("bcryptjs");
@@ -14,25 +15,28 @@ connect();
 // 이미지 업로드 Multer
 const upload = multer({
   dest: "upload/",
-  // storage: multer.diskStorage({
-  //     destination(req, file, cb) {
-  //         cb(null, 'uploads/');
-  //     },
-  //     filename(req, file, cb) {
-  //         const ext = path.extname(file.originalname);
-  //         cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
-  //     },
-  //     fileFilter: (req, file, callback) => {
-  //         const ext = path.extname(file.originalname);
-  //         if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
-  //             return callback(new Error('PNG, JPG만 업로드하세요'))
-  //         }
-  //         callback(null, true)
-  //     },
-  //     limits: {
-  //         fileSize: 1024 * 1024
-  //     }
-  // }),
+  storage: multer.diskStorage({
+    destination(req, file, cb) {
+      cb(null, "./uploads");
+    },
+    filename(req, file, cb) {
+      const ext = path.extname(file.originalname);
+      cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
+    },
+    fileFilter: (req, file, cb) => {
+      if (["image/png", "image/jpg", "image/jpeg"].includes(file.mimetype)) cd(null, true);
+      else cd(Error("PNG, jpeg만 업로드 하세요"), false);
+    },
+    // const ext = path.extname(file.originalname);
+    //     if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
+    //         return callback(new Error('PNG, JPG만 업로드하세요'))
+    //     }
+    //     callback(null, true)
+    // },
+    limits: {
+      fileSize: 1024 * 1024,
+    },
+  }),
 });
 
 // 검증 Joi 라이브러리
@@ -50,13 +54,12 @@ const userSchema = Joi.object({
 });
 
 // 회원가입시 프로필 사진이 들어갈 폴더
-// app.use(express.static('../public/image'))
+app.use("/uploads", express.static("uploads"));
 
 //회원가입
 router.post("/signup", upload.single("userProfileImage"), async (req, res) => {
   try {
     const { userNickname, userEmail, userPassword, confirmPassword, regionSi, regionGu, regionDetail } = await userSchema.validateAsync(req.body);
-    const userProfileImage = req.file.path;
 
     const re_email = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
     const re_nickname = /^[a-zA-Z0-9]{3,10}$/;
@@ -96,6 +99,7 @@ router.post("/signup", upload.single("userProfileImage"), async (req, res) => {
       });
       return;
     }
+
     const existuser = await User.find({ $or: [{ userNickname }, { userEmail }] });
     // const existuserEmail = await User.find({ userEmail });
     if (existuser.length) {
@@ -104,10 +108,10 @@ router.post("/signup", upload.single("userProfileImage"), async (req, res) => {
       });
       return;
     }
-    const hashedPassword = await hash(userPassword, 10);
-    console.log(hashedPassword);
-    // userProfileImage
-    const user = await User.create({ userNickname, userEmail, hashedPassword, regionSi, regionGu, regionDetail, userProfileImage });
+
+    const hashedPassword = await new hash(userPassword, 10);
+    const userProfileImage = req.file.path;
+    const user = await new User.save({ userNickname, userEmail, hashedPassword, regionSi, regionGu, regionDetail, userProfileImage });
     res.status(201).send({ user });
   } catch (error) {
     console.log(error);
@@ -115,22 +119,19 @@ router.post("/signup", upload.single("userProfileImage"), async (req, res) => {
   }
 });
 
-const loginAuthSchema = Joi.object({
-  userEmail: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-    .required(),
-  userPassword: Joi.string().required(),
-});
+// const loginAuthSchema = Joi.object({
+//   userEmail: Joi.string().email().required(),
+//   userPassword: Joi.string().required(),
+// });
 
 // 로그인 기능
 router.post("/login", async (req, res) => {
   try {
-    const { userEmail, userPassword } = await loginAuthSchema.validateAsync(req.body);
+    // const { userEmail, userPassword } = await loginAuthSchema.validateAsync(req.body);
+    const { userEmail, userPassword } = req.body;
     const user = await User.findOne({ userEmail });
-    await compare(userPassword, user.hashedPassword);
-
     const re_email = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
-    // const re_password = /^[a-zA-Z0-9]{4,30}$/;
+    const re_password = /^[a-zA-Z0-9]{4,30}$/;
 
     if (userEmail.search(re_email) == -1) {
       res.status(400).send({
@@ -138,14 +139,15 @@ router.post("/login", async (req, res) => {
       });
       return;
     }
-    // if (userPassword.search(re_password) == -1) {
-    //   res.status(400).send({
-    //     errormessage: "비밀번호 형식이 일치 하지 않습니다.",
-    //   });
-    //   return;
-    // }
+    if (userPassword.search(re_password) == -1) {
+      res.status(400).send({
+        errormessage: "비밀번호 형식이 일치 하지 않습니다.",
+      });
+      return;
+    }
 
-    if (!user || userPassword !== user.hashedPassword) {
+    const isValid = await compare(userPassword, user.hashedPassword);
+    if (!isValid) {
       res.status(400).send({
         errormessage: "아이디 또는 패스워드를 확인해주세요",
       });
@@ -156,16 +158,22 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(400).send({
-      errormessage: "아이디나 비밀번호를 확인해주세요",
+      errormessage: "아이디 또는 비밀번호를 확인해주세요",
     });
   }
 });
 
-// 로그인 상태 확인
+// 내 정보 확인
 router.get("/auth", authMiddlewares, async (req, res) => {
   try {
     const { user } = res.locals;
-    res.status(200).send({ user });
+    res.status(200).send({
+      user: {
+        userId: user.userId,
+        userNickname: user.userNickname,
+        userProfileImage: user.userProfileImage,
+      },
+    });
   } catch (error) {
     res.status(401).send({
       errormessage: "사용자 정보를 가져오지 못하였습니다.",
