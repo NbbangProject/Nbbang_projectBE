@@ -3,6 +3,99 @@ const Comment = require('../schemas/comments');
 const Post = require('../schemas/posts');
 const authMiddlewares = require('../middlewares/authconfirm');
 
+// Post 전체 정보 불러오기
+router.get('/postId', async (req, res) => {
+  try {
+    const posts = await posts.find().sort({ date: -1 }); //오름차순 정렬
+    res.json({
+      posts,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Post 상세 보기
+router.get('/detail/:postId', authMiddlewares, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const detail = await Post.findOne({ postId: Number(postId) });
+    const comment = res.locals.comment.comment;
+    const commentDate = res.locals.comment.commentDate;
+    const userNickname = existingUser.userNickname;
+    const userProfileImage = detail.userProfileImage;
+    const existingUser = await User.findOne({ _id: userId });
+    const authorId = existingUser._id;
+
+    res.status(200).json({
+      detail,
+      comment,
+      commentDate,
+      userNickname,
+      userProfileImage,
+      authorId,
+      postId,
+      message: '상세페이지 보기 성공',
+    });
+  } catch (err) {
+    res.status(400).json({
+      errorMessage: '상세페이지 보기 실패',
+    });
+    console.log('Post 상세페이지 보기 실패: ' + err);
+  }
+});
+
+//Post 작성
+router.post('/write', authMiddlewares, async (req, res) => {
+  const { userId } = res.locals.user;
+  const existingUser = await User.findOne({ _id: userId });
+  const {
+    postCategory,
+    postTitle,
+    postImage,
+    postAddress,
+    postOrderTime,
+    postContent,
+  } = req.body;
+  const now = new Date();
+  const date = now.toLocaleDateString('ko-KR');
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const postDate = date + ' ' + hours + ':' + minutes;
+  const userNickname = existingUser.userNickname;
+  const authorId = existingUser._id;
+  const commentAll = 0;
+  // const userProfileImage = users.userProfileImage;
+  try {
+    s;
+    const createPost = await Post.create({
+      postId,
+      postCategory,
+      postTitle,
+      postImage,
+      postAddress,
+      postOrderTime,
+      postContent,
+      postDate,
+      userNickname,
+      authorId,
+      commentAll,
+    });
+    const postId = createPost.postId;
+
+    res.status(200).json({
+      postId,
+      message: 'Post생성 성공',
+    });
+  } catch (err) {
+    res.status(400).json({
+      errorMessage: 'Post생성 실패',
+    });
+  }
+});
+
+module.exports = router;
+
 // 포스트 수정 :
 
 router.put('/edit/:postId', authMiddlewares, async (req, res) => {
