@@ -7,9 +7,6 @@ const authMiddlewares = require('../middlewares/authconfirm');
 // 코멘트 작성: 유저확인
 
 router.post('/detail/:postId', authMiddlewares, async (req, res) => {
-  // let counter = await CommentCounter.findOne({ name: 'totalComment' });
-  // counter.totalComment++;
-  // counter.save();
   const { postId } = req.params;
   const { userId } = res.locals.user;
   const existingUser = await User.findOne({ _id: userId });
