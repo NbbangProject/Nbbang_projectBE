@@ -24,7 +24,7 @@ const postsSchema = new mongoose.Schema({
     required: true,
   },
   postOrderTime: {
-    type: Date,
+    type: String,
     required: true,
   },
   postContent: {
@@ -32,11 +32,11 @@ const postsSchema = new mongoose.Schema({
     required: true,
   },
   postDate: {
-    type: Date,
+    type: String,
     required: true,
   },
   postTime: {
-    type: Date,
+    type: String,
     required: true,
   },
   userNickname: {

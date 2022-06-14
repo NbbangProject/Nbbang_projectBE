@@ -14,7 +14,13 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
   const existingUser = await User.findOne({ _id: userId });
   const commentId = counter.totalComment;
   const { comment } = req.body;
-  const commentDate = new Date().toLocaleDateString();
+
+  const now = new Date();
+  const date = now.toLocaleDateString('ko-KR');
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const commentDate = date + ' ' + hours + ':' + minutes;
+
   const userNickname = existingUser.userNickname;
   const userProfileImage = existingUser.userProfileImage;
   const authorId = existingUser._id;

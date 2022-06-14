@@ -12,7 +12,7 @@ const commentsSchema = new mongoose.Schema({
     required: true,
   },
   commentDate: {
-    type: Date,
+    type: String,
     required: true,
   },
   userNickname: {
