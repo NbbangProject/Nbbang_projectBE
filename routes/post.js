@@ -42,7 +42,7 @@ app.use('/uploads', express.static('uploads'));
 router.get('/postList', async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 }); //오름차순 정렬
-    res.json({
+    res.status(200).json({
       posts,
     });
   } catch (error) {
