@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const CommentCounter = require('../schemas/commentcounter');
+const Post = require('../schemas/posts');
 const Comment = require('../schemas/comments');
 const User = require('../schemas/users');
 const authMiddlewares = require('../middlewares/authconfirm');
@@ -7,12 +7,12 @@ const authMiddlewares = require('../middlewares/authconfirm');
 // 코멘트 작성: 유저확인
 
 router.post('/detail/:postId', authMiddlewares, async (req, res) => {
-  let counter = await CommentCounter.findOne({ name: 'totalComment' }).exec();
-  counter.totalComment++;
-  counter.save();
+  // let counter = await CommentCounter.findOne({ name: 'totalComment' });
+  // counter.totalComment++;
+  // counter.save();
+  const { postId } = req.params;
   const { userId } = res.locals.user;
   const existingUser = await User.findOne({ _id: userId });
-  const commentId = counter.totalComment;
   const { comment } = req.body;
 
   const now = new Date();
@@ -24,13 +24,11 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
   const userNickname = existingUser.userNickname;
   const userProfileImage = existingUser.userProfileImage;
   const authorId = existingUser._id;
-  const postId = parseInt(req.params);
 
   if (!comment) {
     res.status(400).json({ success: false, message: '내용을 입력하세요' });
   }
   const createdComment = await Comment.create({
-    commentId,
     comment,
     commentDate,
     userNickname,
@@ -54,11 +52,11 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
 router.delete('/comment/:commentId', authMiddlewares, async (req, res) => {
   const { commentId } = req.params;
   const { userId } = res.locals.user;
-  const existingComment = await Comment.find({
+  const existingComment = await Comment.findOne({
     commentId: parseInt(commentId),
   });
 
-  if (userId !== existingComment.authorId) {
+  if (userId !== existingComment.authorId.toString()) {
     res
       .status(400)
       .json({ success: false, message: '내가 쓴 댓글이 아닙니다' });
