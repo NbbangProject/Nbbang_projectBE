@@ -5,52 +5,52 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 const postsSchema = new mongoose.Schema({
   postId: {
     type: Number,
-    required: true,
-    unique: true,
+    // required: true,
+    // unique: true,
   },
   postCategory: {
     type: String,
-    required: true,
+    // required: true,
   },
   postTitle: {
     type: String,
-    required: true,
+    // required: true,
   },
   postImage: {
     type: String,
-    required: true,
+    // required: true,
   },
   postAddress: {
     type: String,
-    required: true,
+    // required: true,
   },
   postOrderTime: {
     type: String,
-    required: true,
+    // required: true,
   },
   postContent: {
     type: String,
-    required: true,
+    // required: true,
   },
   postDate: {
     type: String,
-    required: true,
+    // required: true,
   },
   postTime: {
     type: String,
-    required: true,
+    // required: true,
   },
   userNickname: {
     type: String,
-    required: true,
+    // required: true,
   },
   authorId: {
     type: Schema.Types.ObjectId,
-    required: true,
+    // required: true,
   },
   commentAll: {
     type: Number,
-    required: true,
+    // required: true,
     default: 0,
   },
 });
