@@ -48,6 +48,7 @@ router.post('/write', authMiddlewares, async (req, res) => {
       postImage,
       postAddress,
       postOrderTime,
+      postOrderDate,
       postContent,
     } = req.body;
 
@@ -63,6 +64,7 @@ router.post('/write', authMiddlewares, async (req, res) => {
       postTitle,
       postImage,
       postAddress,
+      postOrderDate,
       postOrderTime,
       postContent,
       postDate,
