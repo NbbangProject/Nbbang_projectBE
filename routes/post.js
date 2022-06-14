@@ -16,10 +16,10 @@ router.put('/edit/:postId', authMiddlewares, async (req, res) => {
     postOrderTime,
     postContent,
   } = req.body;
-  const existingPost = await Post.find({ authorId: userId });
+  const existingPost = await Post.find({ postId: parseInt(postId) });
 
   if (userId !== existingPost.authorId) {
-    res.status(400).json({ sucess: false, message: '내 게시물이 아닙니다' });
+    res.status(400).json({ success: false, message: '내 게시물이 아닙니다' });
   } else {
     await Post.updateOne(
       { postId: parseInt(postId) },
