@@ -197,6 +197,8 @@ router.get('/auth', authMiddlewares, async (req, res) => {
         userId: user.userId,
         userNickname: user.userNickname,
         userProfileImage: user.userProfileImage,
+        regionSi: user.regionSi,
+        regionGu: user.regionGu,
       },
     });
   } catch (error) {

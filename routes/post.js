@@ -20,14 +20,8 @@ router.get('/postList', async (req, res) => {
 router.get('/detail/:postId', authMiddlewares, async (req, res) => {
   try {
     const { postId } = req.params;
-    const detail = await Post.findOne({ postId: Number(postId) });
-    const existingComment = await Comment.find({ postId: Number(postId) });
-    // const comment = existingComment.comment
-    // const commentDate = existingComment.comment
-    // const userNickname = existingUser.userNickname;
-    // const userProfileImage = detail.userProfileImage;
-    // const existingUser = await User.findOne({ _id: userId });
-    // const authorId = existingUser._id;
+    const detail = await Post.findOne({ postId: parseInt(postId) });
+    const existingComment = await Comment.find({ postId: parseInt(postId) });
 
     res.status(200).json({
       detail,
@@ -94,6 +88,7 @@ module.exports = router;
 router.put('/edit/:postId', authMiddlewares, async (req, res) => {
   const { postId } = req.params;
   const { userId } = res.locals.user;
+  console.log(userId);
   const {
     postCategory,
     postTitle,
@@ -102,9 +97,9 @@ router.put('/edit/:postId', authMiddlewares, async (req, res) => {
     postOrderTime,
     postContent,
   } = req.body;
-  const existingPost = await Post.find({ postId: parseInt(postId) });
+  const existingPost = await Post.findOne({ postId: parseInt(postId) });
 
-  if (userId !== existingPost.authorId) {
+  if (userId !== existingPost.authorId.toString()) {
     res.status(400).json({ success: false, message: '내 게시물이 아닙니다' });
   } else {
     await Post.updateOne(
@@ -128,8 +123,8 @@ router.put('/edit/:postId', authMiddlewares, async (req, res) => {
 router.delete('/post/:postId', authMiddlewares, async (req, res) => {
   const { postId } = req.params;
   const { userId } = res.locals.user;
-  const existingPost = await Post.find({ postId: parseInt(postId) });
-  if (userId !== existingPost.authorId) {
+  const existingPost = await Post.findOne({ postId: parseInt(postId) });
+  if (userId !== existingPost.authorId.toString()) {
     res.status(400).json({ success: false, message: '내 게시물이 아닙니다' });
   } else {
     await Post.deleteOne({ postId: parseInt(postId) });
