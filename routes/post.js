@@ -39,7 +39,7 @@ const upload = multer({
 // Post 전체 정보 불러오기
 router.get('/postList', async (req, res) => {
   try {
-    const posts = await Post.find().sort({ date: -1 }); //오름차순 정렬
+    const posts = await Post.find().sort({ postId: -1 }); //오름차순 정렬
     res.status(200).json({
       posts,
     });
