@@ -69,7 +69,6 @@ router.get('/detail/:postId', authMiddlewares, async (req, res) => {
     console.log('Post 상세페이지 보기 실패: ' + err);
   }
 });
-
 //Post 작성
 router.post(
   '/write',
@@ -77,10 +76,11 @@ router.post(
   upload.single('postImage'),
   async (req, res) => {
     console.log(req.body);
+    console.log(req.file);
     try {
       const { userId } = res.locals.user;
       const existingUser = await User.findOne({ _id: userId });
-      const postImage = req.file.path;
+      const postImage = 'http://3.39.226.20/' + req.file.path.split('/')[1];
       const {
         postCategory,
         postTitle,
@@ -131,7 +131,7 @@ router.put(
   async (req, res) => {
     const { postId } = req.params;
     const { userId } = res.locals.user;
-    const postImage = req.file.path;
+    const postImage = 'http://3.39.226.20/' + req.file.path.split('/')[1];
     const { postCategory, postTitle, postAddress, postOrderTime, postContent } =
       req.body;
     const existingPost = await Post.findOne({ postId: parseInt(postId) });
