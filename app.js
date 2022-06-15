@@ -10,6 +10,7 @@ app.use(express.json());
 app.use('/api', require('./routes/comment.js'));
 app.use('/api', require('./routes/post.js'));
 app.use('/api', require('./routes/user.js'));
+app.use(express.static('uploads'));
 
 app.use(cors());
 app.use((req, res, next) => {
