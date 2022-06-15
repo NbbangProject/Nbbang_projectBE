@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const usersSchema = new mongoose.Schema({
   userNickname: {
@@ -12,10 +12,6 @@ const usersSchema = new mongoose.Schema({
     unique: true,
   },
   hashedPassword: {
-    type: String,
-    // required: true,
-  },
-  regionSi: {
     type: String,
     // required: true,
   },
@@ -33,11 +29,11 @@ const usersSchema = new mongoose.Schema({
   },
 });
 
-usersSchema.virtual("userId").get(function () {
+usersSchema.virtual('userId').get(function () {
   return this._id.toHexString();
 });
-usersSchema.set("toJSON", {
+usersSchema.set('toJSON', {
   virtuals: true,
 });
 
-module.exports = mongoose.model("Users", usersSchema);
+module.exports = mongoose.model('Users', usersSchema);
