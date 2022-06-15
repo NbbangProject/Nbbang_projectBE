@@ -1,5 +1,6 @@
 const { boolean } = require('joi');
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const usersSchema = new mongoose.Schema({
   userNickname: {
@@ -29,7 +30,7 @@ const usersSchema = new mongoose.Schema({
     // required: true,
   },
   is_login: {
-    type: boolean,
+    type: Schema.Types.Boolean,
     // required: true,
     default: true,
   },
