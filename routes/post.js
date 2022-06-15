@@ -36,8 +36,6 @@ const upload = multer({
   }),
 });
 
-app.use('/uploads', express.static('uploads'));
-
 // Post 전체 정보 불러오기
 router.get('/postList', async (req, res) => {
   try {
