@@ -49,7 +49,6 @@ const userSchema = Joi.object({
     .required(),
   userPassword: Joi.string().required(),
   confirmPassword: Joi.string().required(),
-  regionSi: Joi.string().required(),
   regionGu: Joi.string().required(),
   regionDetail: Joi.string().required(),
   userProfileImage: Joi.string(),
@@ -65,7 +64,6 @@ router.post('/signup', upload.single('userProfileImage'), async (req, res) => {
       userEmail,
       userPassword,
       confirmPassword,
-      regionSi,
       regionGu,
       regionDetail,
     } = await userSchema.validateAsync(req.body);
@@ -130,7 +128,6 @@ router.post('/signup', upload.single('userProfileImage'), async (req, res) => {
       userNickname,
       userEmail,
       hashedPassword,
-      regionSi,
       regionGu,
       regionDetail,
       userProfileImage,
@@ -205,7 +202,6 @@ router.get('/auth', authMiddlewares, async (req, res) => {
         userId: user.userId,
         userNickname: user.userNickname,
         userProfileImage: user.userProfileImage,
-        regionSi: user.regionSi,
         regionGu: user.regionGu,
       },
     });
