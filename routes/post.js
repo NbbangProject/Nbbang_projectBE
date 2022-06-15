@@ -36,6 +36,17 @@ const upload = multer({
   }),
 });
 
+router.get('/userData', async (req, res) => {
+  try {
+    const users = await User.find().exec();
+    res.status(200).json({
+      users,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // Post 전체 정보 불러오기
 router.get('/postList', async (req, res) => {
   try {
