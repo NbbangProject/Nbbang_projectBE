@@ -1,3 +1,4 @@
+const { boolean } = require('joi');
 const mongoose = require('mongoose');
 
 const usersSchema = new mongoose.Schema({
@@ -26,6 +27,11 @@ const usersSchema = new mongoose.Schema({
   userProfileImage: {
     type: String,
     // required: true,
+  },
+  is_login: {
+    type: boolean,
+    // required: true,
+    default: true,
   },
 });
 
