@@ -36,6 +36,8 @@ const upload = multer({
   }),
 });
 
+// 유저정보 불러오기
+
 router.get('/userData', async (req, res) => {
   try {
     const users = await User.find().exec();
@@ -67,7 +69,9 @@ router.get(
     try {
       const { postId } = req.params;
       const detail = await Post.findOne({ postId: parseInt(postId) });
-      const existingComment = await Comment.find({ postId: parseInt(postId) });
+      const existingComment = await Comment.find({
+        postId: parseInt(postId),
+      }).sort({ commentId: -1 });
 
       res.status(200).json({
         detail,
