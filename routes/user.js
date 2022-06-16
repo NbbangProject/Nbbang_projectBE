@@ -43,7 +43,8 @@ const upload = multer({
 
 // 검증 Joi 라이브러리
 const userSchema = Joi.object({
-  userNickname: Joi.string().required(),
+  userNickname: Joi.string(),
+  // .required()
   userEmail: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
     .required(),
