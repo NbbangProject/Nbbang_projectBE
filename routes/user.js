@@ -123,8 +123,7 @@ router.post('/signup', upload.single('userProfileImage'), async (req, res) => {
     }
 
     const hashedPassword = await new hash(userPassword, 10);
-    const userProfileImage =
-      'http://3.39.226.20/' + req.file.path.split('/')[1];
+    const userProfileImage = 'http://3.39.226.20/' + req.file.fieldname;
 
     const user = await User.create({
       userNickname,
