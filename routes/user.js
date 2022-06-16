@@ -52,7 +52,7 @@ const userSchema = Joi.object({
   userPassword: Joi.string(),
   confirmPassword: Joi.string(),
   regionGu: Joi.string(),
-  regionDetail: Joi.string()(),
+  regionDetail: Joi.string(),
   userProfileImage: Joi.string(),
 });
 
