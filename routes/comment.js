@@ -11,8 +11,8 @@ router.post(
   // authMiddlewares,
   async (req, res) => {
     const { postId } = req.params;
-    const { userId } = res.locals.user;
-    const existingUser = await User.findOne({ _id: userId });
+    // const { userId } = res.locals.user;
+    // const existingUser = await User.findOne({ _id: userId });
     const { comment } = req.body;
 
     const now = new Date();
@@ -21,9 +21,9 @@ router.post(
     const minutes = now.getMinutes();
     const commentDate = date + ' ' + hours + ':' + minutes;
 
-    const userNickname = existingUser.userNickname;
-    const userProfileImage = existingUser.userProfileImage;
-    const authorId = existingUser._id;
+    // const userNickname = existingUser.userNickname;
+    // const userProfileImage = existingUser.userProfileImage;
+    // const authorId = existingUser._id;
 
     if (!comment) {
       res.status(400).json({ success: false, message: '내용을 입력하세요' });
@@ -31,9 +31,9 @@ router.post(
     const createdComment = await Comment.create({
       comment,
       commentDate,
-      userNickname,
-      userProfileImage,
-      authorId,
+      // userNickname,
+      // userProfileImage,
+      // authorId,
       postId,
     });
     const commentAll = await Comment.find({ postId: parseInt(postId) });
