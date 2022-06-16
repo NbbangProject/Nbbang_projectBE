@@ -1,9 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+// require('dotenv').config();
 const port = 5000;
 const connect = require('./schemas');
-app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: ['authorization'],
+    origin: '*',
+    credentials: 'true',
+  })
+);
 connect();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());

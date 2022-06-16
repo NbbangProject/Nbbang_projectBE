@@ -92,12 +92,14 @@ router.post(
   authMiddlewares,
   upload.single('postImage'),
   async (req, res) => {
-    console.log(req.body);
-    console.log(req.file);
+    console.log('바디:', req.body);
+    console.log('파일:', req.file);
     try {
       const { userId } = res.locals.user;
       const existingUser = await User.findOne({ _id: userId });
-      const postImage = 'http://3.39.226.20/' + req.file.path.split('/')[1];
+      // const obj = JSON.parse(JSON.stringify(req.files));
+      // const postImage = 'http://3.39.226.20/' + obj.postImage[0].filename;
+      const postImage = 'http://3.39.226.20/' + req.file.filename;
       const {
         postCategory,
         postTitle,
