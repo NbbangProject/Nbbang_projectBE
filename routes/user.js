@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+// require('dotenv').config();
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const { hash, compare } = require('bcryptjs');
@@ -181,7 +182,7 @@ router.post('/login', async (req, res) => {
       return;
     }
     const token = jwt.sign({ userId: user.userId }, 'nbbang-sercet-key', {
-      expiresIn: '1h',
+      expiresIn: '6h',
     });
 
     res.send({ token });

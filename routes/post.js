@@ -62,30 +62,26 @@ router.get('/postList', async (req, res) => {
 });
 
 // Post 상세 보기
-router.get(
-  '/detail/:postId',
-  // authMiddlewares,
-  async (req, res) => {
-    try {
-      const { postId } = req.params;
-      const detail = await Post.findOne({ postId: parseInt(postId) });
-      const existingComment = await Comment.find({
-        postId: parseInt(postId),
-      }).sort({ commentId: -1 });
+router.get('/detail/:postId', authMiddlewares, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const detail = await Post.findOne({ postId: parseInt(postId) });
+    const existingComment = await Comment.find({
+      postId: parseInt(postId),
+    }).sort({ commentId: -1 });
 
-      res.status(200).json({
-        detail,
-        existingComment,
-        message: '상세페이지 보기 성공',
-      });
-    } catch (err) {
-      res.status(400).json({
-        errorMessage: '상세페이지 보기 실패',
-      });
-      console.log('Post 상세페이지 보기 실패: ' + err);
-    }
+    res.status(200).json({
+      detail,
+      existingComment,
+      message: '상세페이지 보기 성공',
+    });
+  } catch (err) {
+    res.status(400).json({
+      errorMessage: '상세페이지 보기 실패',
+    });
+    console.log('Post 상세페이지 보기 실패: ' + err);
   }
-);
+});
 //Post 작성
 router.post(
   '/write',
@@ -97,8 +93,6 @@ router.post(
     try {
       const { userId } = res.locals.user;
       const existingUser = await User.findOne({ _id: userId });
-      // const obj = JSON.parse(JSON.stringify(req.files));
-      // const postImage = 'http://3.39.226.20/' + obj.postImage[0].filename;
       const postImage = 'http://3.39.226.20/' + req.file.filename;
       const {
         postCategory,
