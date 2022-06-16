@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-// require('dotenv').config();
-const port = 5000;
+require('dotenv').config();
 const connect = require('./schemas');
 app.use(
   cors({
@@ -24,6 +23,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.listen(port, () => {
-  console.log(`listening on ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`listening on 5000`);
 });

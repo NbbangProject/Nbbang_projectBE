@@ -1,12 +1,8 @@
 const mongoose = require('mongoose');
-// require('dotenv').config();
+require('dotenv').config();
 
 const connect = () => {
-  mongoose
-    .connect(
-      'mongodb+srv://test:test@cluster0.zkvgg.mongodb.net/Nbbang?retryWrites=true&w=majority'
-    )
-    .catch((err) => console.log(err));
+  mongoose.connect(process.env.DB_URL).catch((err) => console.log(err));
 };
 
 mongoose.connection.on('error', (err) => {
