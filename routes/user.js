@@ -44,14 +44,15 @@ const upload = multer({
 // 검증 Joi 라이브러리
 const userSchema = Joi.object({
   userNickname: Joi.string(),
-  // .required()
-  userEmail: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
-    .required(),
-  userPassword: Joi.string().required(),
-  confirmPassword: Joi.string().required(),
-  regionGu: Joi.string().required(),
-  regionDetail: Joi.string().required(),
+
+  userEmail: Joi.string().email({
+    minDomainSegments: 2,
+    tlds: { allow: ['com', 'net'] },
+  }),
+  userPassword: Joi.string(),
+  confirmPassword: Joi.string(),
+  regionGu: Joi.string(),
+  regionDetail: Joi.string()(),
   userProfileImage: Joi.string(),
 });
 
