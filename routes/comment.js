@@ -46,21 +46,18 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
 });
 
 // 코멘트 삭제: 유저확인
-router.delete(
-  '/comment/:commentId',
-  // authMiddlewares,
-  async (req, res) => {
-    const { commentId } = req.params;
-    // const { userId } = res.locals.user;
-    const existingComment = await Comment.findOne({
-      commentId: parseInt(commentId),
-    });
+router.delete('/comment/:commentId', authMiddlewares, async (req, res) => {
+  const { commentId } = req.params;
+  // const { userId } = res.locals.user;
+  const existingComment = await Comment.findOne({
+    commentId: parseInt(commentId),
+  });
 
-    // if (userId !== existingComment.authorId.toString()) {
-    //   res
-    //     .status(400)
-    //     .json({ success: false, message: '내가 쓴 댓글이 아닙니다' });}
-    // else {
+  if (userId !== existingComment.authorId.toString()) {
+    res
+      .status(400)
+      .json({ success: false, message: '내가 쓴 댓글이 아닙니다' });
+  } else {
     await Comment.deleteOne({ commentId: parseInt(commentId) });
     const commentAll = await Comment.find({
       postId: parseInt(existingComment.postId),
@@ -71,7 +68,6 @@ router.delete(
     );
     res.status(200).json({ success: true, message: '댓글 삭제 성공' });
   }
-  // }
-);
+});
 
 module.exports = router;
