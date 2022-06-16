@@ -48,7 +48,7 @@ router.post('/detail/:postId', authMiddlewares, async (req, res) => {
 // 코멘트 삭제: 유저확인
 router.delete('/comment/:commentId', authMiddlewares, async (req, res) => {
   const { commentId } = req.params;
-  // const { userId } = res.locals.user;
+  const { userId } = res.locals.user;
   const existingComment = await Comment.findOne({
     commentId: parseInt(commentId),
   });
